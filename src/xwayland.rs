@@ -65,6 +65,7 @@ pub struct XWaylandState {
     pub client: Client,
     pub xwm: Option<X11Wm>,
     pub display: u32,
+    pub xauthority_file_path: Option<String>,
     pub pressed_keys: Vec<Keycode>,
     pub pressed_buttons: Vec<u32>,
     pub last_modifier_state: Option<ModifiersState>,
@@ -139,6 +140,7 @@ impl State {
                 XWaylandEvent::Ready {
                     x11_socket,
                     display_number,
+                    xauthority_file_path,
                 } => {
                     let (tx, rx) = mpsc::channel();
                     std::thread::spawn(move || xrdb_thread(rx, display_number));
@@ -147,6 +149,7 @@ impl State {
                         client: client.clone(),
                         xwm: None,
                         display: display_number,
+                        xauthority_file_path,
                         pressed_keys: Vec::new(),
                         pressed_buttons: Vec::new(),
                         last_modifier_state: None,

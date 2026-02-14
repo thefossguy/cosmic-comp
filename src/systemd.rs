@@ -8,7 +8,13 @@ use tracing::{error, warn};
 pub fn ready(common: &Common) {
     if booted() {
         match Command::new("systemctl")
-            .args(["--user", "import-environment", "WAYLAND_DISPLAY", "DISPLAY"])
+            .args([
+                "--user",
+                "import-environment",
+                "WAYLAND_DISPLAY",
+                "DISPLAY",
+                "XAUTHORITY",
+            ])
             .env("WAYLAND_DISPLAY", &common.socket)
             .env(
                 "DISPLAY",
@@ -16,6 +22,15 @@ pub fn ready(common: &Common) {
                     .xwayland_state
                     .as_ref()
                     .map(|s| format!(":{}", s.display))
+                    .unwrap_or_default(),
+            )
+            .env(
+                "XAUTHORITY",
+                common
+                    .xwayland_state
+                    .as_ref()
+                    .and_then(|s| s.xauthority_file_path.as_ref())
+                    .map(|p| p.as_str())
                     .unwrap_or_default(),
             )
             .status()
